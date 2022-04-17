@@ -52,6 +52,7 @@ namespace TodoList.Api.Controllers
             }
 
             _context.Entry(todoItem).State = EntityState.Modified;
+            _context.Entry(todoItem).Entity.IsCompleted = todoItem.IsCompleted;
 
             try
             {

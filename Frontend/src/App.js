@@ -80,12 +80,17 @@ const App = () => {
   }
 
   const handleDescriptionChange = (event) => {
-    // todo
+    setDescription(event.target.value);
   }
 
   async function getItems() {
     try {
-      alert('todo')
+       axios({
+        method: "get",
+        url: "https://localhost:5001/api/todoitems"
+      }).then((response) => {
+        setItems(response.data)
+      });
     } catch (error) {
       console.error(error)
     }
@@ -93,7 +98,18 @@ const App = () => {
 
   async function handleAdd() {
     try {
-      alert('todo')
+      axios({
+        method: "post",
+        url: "https://localhost:5001/api/todoitems",
+        data: {
+          description: description
+        }
+      }).then(
+        function(response) {
+          handleClear()
+          getItems()
+        }
+      )
     } catch (error) {
       console.error(error)
     }
@@ -105,7 +121,16 @@ const App = () => {
 
   async function handleMarkAsComplete(item) {
     try {
-      alert('todo')
+      axios({
+        method: "put",
+        url: "https://localhost:5001/api/todoitems/" + item.id,
+        data: {
+          id: item.id,
+          isCompleted: true
+        }
+      }).then(() => {
+        getItems()
+      })
     } catch (error) {
       console.error(error)
     }
