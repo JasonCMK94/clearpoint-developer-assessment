@@ -1,139 +1,41 @@
 import './App.css'
-import { Image, Alert, Button, Container, Row, Col, Form, Table, Stack } from 'react-bootstrap'
-import React, { useState, useEffect } from 'react'
-
-const axios = require('axios')
+import { Image, Alert, Container, Row, Col } from 'react-bootstrap'
+import React, { useState, useEffect, useCallback } from 'react'
+import AddTodoItemComponent from './components/AddTodoItemComponent.js'
+import ToDoItemsComponent from './components/TodoItemsComponent'
+import TodoItemApi from './api/TodoItem'
 
 const App = () => {
-  const [description, setDescription] = useState('')
   const [items, setItems] = useState([])
+  const [errorMessage, setErrorMessage] = useState({})
 
-  useEffect(() => {
-    // todo
+  const getItems = useCallback(() => {
+    TodoItemApi.get()
+      .then((response) => {
+        setItems(response.data)
+      })
+      .catch((error) => {
+        handleError({ title: 'Unable to load items!', error })
+      })
   }, [])
 
-  const renderAddTodoItemContent = () => {
-    return (
-      <Container>
-        <h1>Add Item</h1>
-        <Form.Group as={Row} className="mb-3" controlId="formAddTodoItem">
-          <Form.Label column sm="2">
-            Description
-          </Form.Label>
-          <Col md="6">
-            <Form.Control
-              type="text"
-              placeholder="Enter description..."
-              value={description}
-              onChange={handleDescriptionChange}
-            />
-          </Col>
-        </Form.Group>
-        <Form.Group as={Row} className="mb-3 offset-md-2" controlId="formAddTodoItem">
-          <Stack direction="horizontal" gap={2}>
-            <Button variant="primary" onClick={() => handleAdd()}>
-              Add Item
-            </Button>
-            <Button variant="secondary" onClick={() => handleClear()}>
-              Clear
-            </Button>
-          </Stack>
-        </Form.Group>
-      </Container>
-    )
-  }
+  useEffect(() => {
+    getItems()
+  }, [getItems])
 
-  const renderTodoItemsContent = () => {
-    return (
-      <>
-        <h1>
-          Showing {items.length} Item(s){' '}
-          <Button variant="primary" className="pull-right" onClick={() => getItems()}>
-            Refresh
-          </Button>
-        </h1>
+  useEffect(() => {
+    setErrorMessage({})
+  }, [items])
 
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Description</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.description}</td>
-                <td>
-                  <Button variant="warning" size="sm" onClick={() => handleMarkAsComplete(item)}>
-                    Mark as completed
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </>
-    )
-  }
-
-  const handleDescriptionChange = (event) => {
-    setDescription(event.target.value);
-  }
-
-  async function getItems() {
-    try {
-       axios({
-        method: "get",
-        url: "https://localhost:5001/api/todoitems"
-      }).then((response) => {
-        setItems(response.data)
-      });
-    } catch (error) {
-      console.error(error)
+  const handleError = ( { title, error } ) => {
+    const errorMessage = { 
+      title,
+      message: error.response && typeof error.response.data === 'string' 
+        ? error.response.data 
+        : "Error code: " + error.response.status
     }
-  }
 
-  async function handleAdd() {
-    try {
-      axios({
-        method: "post",
-        url: "https://localhost:5001/api/todoitems",
-        data: {
-          description: description
-        }
-      }).then(
-        function(response) {
-          handleClear()
-          getItems()
-        }
-      )
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  function handleClear() {
-    setDescription('')
-  }
-
-  async function handleMarkAsComplete(item) {
-    try {
-      axios({
-        method: "put",
-        url: "https://localhost:5001/api/todoitems/" + item.id,
-        data: {
-          id: item.id,
-          isCompleted: true
-        }
-      }).then(() => {
-        getItems()
-      })
-    } catch (error) {
-      console.error(error)
-    }
+    setErrorMessage(errorMessage)
   }
 
   return (
@@ -168,11 +70,23 @@ const App = () => {
           </Col>
         </Row>
         <Row>
-          <Col>{renderAddTodoItemContent()}</Col>
+          <Col>
+            <AddTodoItemComponent onItemAdded={getItems} onError={handleError}></AddTodoItemComponent>
+          </Col>
         </Row>
         <br />
         <Row>
-          <Col>{renderTodoItemsContent()}</Col>
+          <Col>
+            { errorMessage.message &&
+            <Alert variant="danger" onClose={() => setErrorMessage({})} dismissible>
+              <Alert.Heading>{errorMessage.title}</Alert.Heading>
+              <p>
+                {errorMessage.message}
+              </p>
+            </Alert>
+            }
+            <ToDoItemsComponent items={items} onItemCompleted={getItems} onRefresh={getItems} onError={handleError}></ToDoItemsComponent>
+          </Col>
         </Row>
       </Container>
       <footer className="page-footer font-small teal pt-4">
