@@ -11,8 +11,7 @@ const AddTodoItemComponent = ({ onItemAdded, onError }) => {
 
     async function handleAdd() {
       TodoItemApi.post({ description: description })
-      .then(
-        () => {
+      .then(() => {
           setDescription('')
           onItemAdded(true)
         }

@@ -28,14 +28,16 @@ const App = () => {
   }, [items])
 
   const handleError = ( { title, error } ) => {
-    const errorMessage = { 
-      title,
-      message: error.response && typeof error.response.data === 'string' 
-        ? error.response.data 
-        : "Error code: " + error.response.status
+    let message = ''
+    if (error.response && typeof error.response.data === 'string') {
+      message = error.response.data
+    } else if (error.response && error.response.status) {
+      message = "Error code: " + error.response.status
+    } else if (error.message) {
+      message = error.message
     }
-
-    setErrorMessage(errorMessage)
+    
+    setErrorMessage({ title, message })
   }
 
   return (
