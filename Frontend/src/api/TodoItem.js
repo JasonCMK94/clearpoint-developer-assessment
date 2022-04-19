@@ -1,5 +1,5 @@
 const axios = require('axios')
-const BASE_URL = "https://localhost:5001/api/todoitems"
+const BASE_URL = "https://localhost:5001/api/v1/todoitems"
 
 const TodoItemApi =  {
   post: async function(data) {
@@ -12,7 +12,7 @@ const TodoItemApi =  {
   put: async function(data) {
     return axios({
       method: "put",
-      url: BASE_URL + "/" + data.id,
+      url: BASE_URL,
       data: data
     })
   },

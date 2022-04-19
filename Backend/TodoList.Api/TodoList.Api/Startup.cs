@@ -37,7 +37,9 @@ namespace TodoList.Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoList.Api", Version = "v1" });
             });
 
-            services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoItemsDB"));
+            services.AddScoped<ITodoContext, TodoContext>(
+                x => new TodoContext(
+                    new DbContextOptionsBuilder<TodoContext>().UseInMemoryDatabase("TodoItemsDB").Options));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

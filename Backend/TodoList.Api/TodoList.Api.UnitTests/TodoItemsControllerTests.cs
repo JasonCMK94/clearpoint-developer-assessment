@@ -96,9 +96,7 @@
                 new Mock<ILogger<TodoItemsController>>().Object);
 
             // Act
-            await controller.PutTodoItem(
-                id,
-                new TodoItem { Description = "updated description", Id = id, IsCompleted = true });
+            await controller.PutTodoItem(new TodoItem { Description = "updated description", Id = id, IsCompleted = true });
 
             // Assert
             var updatedItem = new TodoContext(ContextOptions).TodoItems.First();
@@ -119,7 +117,6 @@
 
             // Act
             var result = (NotFoundResult)await controller.PutTodoItem(
-                                             id,
                                              new TodoItem
                                                  {
                                                      Description = "updated description", Id = id, IsCompleted = true
@@ -127,29 +124,6 @@
 
             // Assert
             Assert.Equal((int)HttpStatusCode.NotFound, result.StatusCode);
-        }
-
-        [Fact]
-        public async void TodoItemPutMismatchedId_ReturnBadRequest()
-        {
-            // Arrange
-            var context = GetContext();
-            Guid id = new Guid("9543DC12-DB45-4066-AB09-81E04F70C929");
-            context.Add(new TodoItem { Id = id, Description = "single item" });
-            context.SaveChanges();
-
-            var controller = new TodoItemsController(context, new Mock<ILogger<TodoItemsController>>().Object);
-
-            // Act
-            var result = (BadRequestResult)await controller.PutTodoItem(
-                                           new Guid("C5DF58C8-27A2-4B67-8365-EE6DC239ED8F"),
-                                           new TodoItem
-                                               {
-                                                   Description = "updated description", Id = id, IsCompleted = true
-                                               });
-
-            // Assert
-            Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
         }
 
         [Fact]
