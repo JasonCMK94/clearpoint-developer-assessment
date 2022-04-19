@@ -9,6 +9,7 @@ const App = () => {
   const [items, setItems] = useState([])
   const [errorMessage, setErrorMessage] = useState({})
 
+  // memoize the api call so that we can call it through useEfect on mount
   const getItems = useCallback(() => {
     TodoItemApi.get()
       .then((response) => {
@@ -23,6 +24,7 @@ const App = () => {
     getItems()
   }, [getItems])
 
+  // Clear error message after the items list gets updated
   useEffect(() => {
     setErrorMessage({})
   }, [items])

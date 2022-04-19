@@ -13,7 +13,7 @@ const AddTodoItemComponent = ({ onItemAdded, onError }) => {
       TodoItemApi.post({ description: description })
       .then(() => {
           setDescription('')
-          onItemAdded(true)
+          onItemAdded()
         }
       )
       .catch((error) => {
